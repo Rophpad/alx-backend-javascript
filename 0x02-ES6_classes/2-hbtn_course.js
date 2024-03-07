@@ -1,3 +1,4 @@
+/* eslint no-underscore-dangle: ["error", {"allow": ["_name", "_length", "_students"] }] */
 export default class HolbertonCourse {
   constructor(name, length, students) {
     this._name = name;
@@ -28,7 +29,6 @@ export default class HolbertonCourse {
     } else {
       throw new TypeError('Length must be a number');
     }
-    this._length = Length;
   }
 
   get students() {
