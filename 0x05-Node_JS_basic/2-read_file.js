@@ -1,28 +1,41 @@
 const fs = require('fs');
 
-function countStudents(filePath) {
+function countStudents(path) {
   try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    let lines = data.split('\n');
-    lines.pop();
-    lines.shift();
-    const NUMBER_OF_STUDENTS = lines.length;
-    console.log(NUMBER_OF_STUDENTS);
+    const results = fs.readFileSync(path, { encoding: 'utf8' }).split(/\r?\n/);
+    const lines = results;
+    let i = 0;
+    let countStudents = 0;
+    const fields = {};
 
-    lines = lines.map((line) => line.split(','));
+    for (const line of lines) {
+      if (line.trim() !== '' && i > 0) {
+        countStudents += 1;
+        const [fname, lname, age, field] = line.split(','); // eslint-disable-line
+        if (!fields[field]) {
+          fields[field] = {
+            count: 1,
+            students: [fname],
+          };
+        } else {
+          const newCount = fields[field].count + 1;
+          const newStudents = (fields[field].students).concat(fname);
+          fields[field] = {
+            count: newCount,
+            students: newStudents,
+          };
+        }
+      }
+      i += 1;
+    }
 
-    let FIELD = 'CS';
-    const CSstudents = lines.filter((line) => line[3] === 'CS');
-    const studInCS = CSstudents.reduce((list, line) => list.concat(line[0]), []).reduce((a, b) => a + ', ' + b);
-
-    console.log(`Number of students in ${FIELD} : ${CSstudents.length}. List: ${studInCS}`);
-
-    FIELD = 'SWE';
-    const SWEstudents = lines.filter((line) => line[3] === 'SWE');
-    const studInSWE = SWEstudents.reduce((list, line) => list.concat(line[0]), []).reduce((a, b) => a + ', ' + b);
-
-    console.log(`Number of students in ${FIELD} : ${SWEstudents.length}. List: ${studInSWE}`);
-  } catch (err) {
+    console.log(`Number of students: ${countStudents}`);
+    for (const field of Object.keys(fields)) {
+      const n = fields[field].count;
+      const names = fields[field].students.join(', ');
+      console.log(`Number of students in ${field}: ${n}. List: ${names}`);
+    }
+  } catch (error) {
     throw new Error('Cannot load the database');
   }
 }
